@@ -1,0 +1,187 @@
+{
+  "metadata": {
+    "chapter_number": 7,
+    "analyzed_at": "2026-01-17T17:31:34.862945",
+    "analysis_id": "chapter_7_1768689094",
+    "time_filter": "year",
+    "subreddits": [
+      "ADHDwomen",
+      "neurodiversity",
+      "ADHD",
+      "AutismInWomen",
+      "autism",
+      "Alexithymia",
+      "ADHDers"
+    ]
+  },
+  "themes": [
+    {
+      "name": "functional-freeze",
+      "description": "Appearing functional while emotionally/mentally shut down",
+      "total_posts": 21,
+      "by_subreddit": {
+        "ADHDwomen": 7,
+        "neurodiversity": 2,
+        "ADHD": 1,
+        "AutismInWomen": 3,
+        "autism": 8,
+        "Alexithymia": 0,
+        "ADHDers": 0
+      },
+      "sentiment_breakdown": {
+        "Inspirational": 1,
+        "Fed Up": 6,
+        "Seeking Advice": 9,
+        "Supportive": 0,
+        "Neutral": 5
+      },
+      "top_posts": [
+        {
+          "title": "ADHD is destroying every party of my life and I'm drowning",
+          "text": "* part, not party. FFS \ud83e\udee3\n\nI've been dating a great woman for just over a year. We're on the edge of a breakup, as my symptoms are driving her around the bend. She just can't take it any more. She says my ADHD has become worse and feels \"loud.\" I feel terrible, and I'm seeing a therapist, taking medication, setting alarms and reminders and calendars and everything I can think of, but I fear it's not enough.\n\nI recently got in trouble at work for overlooking things I should have noticed, and it's not the first time this has happened. I'm chronically under-employed and making about 20 bucks an hour at 3 jobs (one full-time, 2 part time) in the highest cost-of-living area in the country. I'm in my 40s and still live with family in a leaky trailer because the rent they charge is something I can actually pay.\n\nI'm struggling to go back to school and complete a degree. I've completed the community college credit requirements to transfer to a 4 year school, but I need to  transfer now. And I s",
+          "upvotes": 228,
+          "subreddit": "ADHD",
+          "url": "https://reddit.com/r/ADHD/comments/1kmxs3h/adhd_is_destroying_every_party_of_my_life_and_im/",
+          "sentiment": "Fed Up"
+        },
+        {
+          "title": "Tired of executive dysfunction taking over my life",
+          "text": "My executive dysfunction is really ruining my life. I feel like I can\u2019t convince my brain to do anything, especially things that I enjoy doing (like art, writing, even playing video games). If it\u2019s something I need to do, I still procrastinate and often end up screwing myself over (like waiting too long to refill my medication even though I know I need to). I take quick release Adderall but I\u2019m not consistent with it, and when it wears off after a work day, I crash. I\u2019m just barely going through the motions, and then I rot away to sleep or scroll on my phone for hours. \n\nIt\u2019s especially upsetting when it impacts my art. I\u2019ve been an artist for years, but for the last year or two, my executive dysfunction has really kept me from starting or finishing any art projects. It\u2019s to the point that I feel like I\u2019ve regressed in my skills because I just can\u2019t get myself to make anything. When I do suddenly get the motivation, I\u2019m so discouraged when I can\u2019t make something like I used to easily d",
+          "upvotes": 25,
+          "subreddit": "ADHDwomen",
+          "url": "https://reddit.com/r/adhdwomen/comments/1p7uszk/tired_of_executive_dysfunction_taking_over_my_life/",
+          "sentiment": "Fed Up"
+        },
+        {
+          "title": "How Do You Stim? [FAQ]",
+          "text": "\n#\nHow does everybody else stim??\n#\n\n### Notes\n- This list is broad, but not literally exhaustive; stims are idiosyncratic and not a diagnosis of autism on their own\n- Many items cross categories (e.g., humming = auditory + vibration)  \n- Distinguish regulation-oriented painstims from self-harm by **intent and function** (stimming for relief vs SH for injury)  \n- Safety: avoid tissue damage, burns, or joint strain; prefer safer substitutes (chewelry over sleeves, putty over skin, weighted input over head banging)  \n- Speak to your healthcare provider if you are unsure whether your stimming is injurious, or for support managing an injurious stim.\n\n### Microstims (covert/subtle)\n- Toe curling inside shoes; foot rocking in place  \n- Tiny jaw shifts; tongue rolling; tooth tapping  \n- Thumb-index rub in pocket; seam rubbing  \n- Phone case edge tracing; coin/ring palming  \n- Eye micro-saccade patterns; blink pacing  \n\n### Motor (whole-body movement)\n- Rocking (standing, seated, on heels)  \n-",
+          "upvotes": 25,
+          "subreddit": "autism",
+          "url": "https://reddit.com/r/autism/comments/1n10dwn/how_do_you_stim_faq/",
+          "sentiment": "Neutral"
+        }
+      ],
+      "quotes": [
+        "I feel like I can\u2019t convince my brain to do anything, especially things that I enjoy doing.",
+        "I think I\u2019ve reached a strange kind of breaking point that\u2019s not dramatic, just quietly unbearable.",
+        "I keep saying I\u2019m okay because technically I\u2019m doing the right things... building structures so I don\u2019t drown. On paper I look like someone functioning.",
+        "I've been trying for weeks, every day trying my damnedest to get something done, but nothing is working.",
+        "One path brings meltdowns, the other brings shutdowns... a pre-stroke type of a feeling and burning clawing in skin type of a feeling."
+      ],
+      "wordcloud_path": "/wordclouds/chapter_7_functional-freeze.png",
+      "csv_filename": "chapter_7_functional-freeze.csv"
+    },
+    {
+      "name": "ahedonia",
+      "description": "Inability to experience pleasure from previously enjoyable activities",
+      "total_posts": 87,
+      "by_subreddit": {
+        "ADHDwomen": 28,
+        "neurodiversity": 8,
+        "ADHD": 18,
+        "AutismInWomen": 8,
+        "autism": 20,
+        "Alexithymia": 3,
+        "ADHDers": 2
+      },
+      "sentiment_breakdown": {
+        "Inspirational": 1,
+        "Fed Up": 27,
+        "Seeking Advice": 53,
+        "Supportive": 1,
+        "Neutral": 5
+      },
+      "top_posts": [
+        {
+          "title": "Dead inside: Obscure hobbies?",
+          "text": "  I\u2019ve got pretty intense adhd but my severe persistent depression is what actually runs my life. Yes I\u2019m medicated, no it doesn\u2019t work, no I don\u2019t have the resources to change things. \nI find I just get very very little enjoyment out of most things and I\u2019ve always kind of been this way. Just either numb or jealous that others live life not-numb. \n\nI desperately need a hobby that sparks joy but nothing really feels good. It feels like if it doesn\u2019t feel good, it almost is painful. I don\u2019t like colouring, crafting is expensive and I\u2019m not allowed to bring more junk in the house, and decorating is the same story. I can\u2019t focus enough to read books. Meditating stresses me out. Can\u2019t do plants cuz there\u2019s no sunlight in my house. I\u2019m creative, but not talented. I\u2019m poor and have only one friend, who is constantly busy with their hobbies and other friends, so I\u2019m just super lonely and have nothing going for me but the doom scroll. I don\u2019t care about crocheting or learning to cross stitch. I",
+          "upvotes": 380,
+          "subreddit": "ADHDwomen",
+          "url": "https://reddit.com/r/adhdwomen/comments/1n5ywpx/dead_inside_obscure_hobbies/",
+          "sentiment": "Fed Up"
+        },
+        {
+          "title": "Anyone with ADHD has figured out what they want to do in life and truly enjoy it without constantly changing their mind?",
+          "text": "I'm 26 (F) and undiagnosed with ADHD. I've always had creative ideas in my head, but I tend to change my mind and give up completely constantly. When I try to take the first step, I often get frustrated by not understanding something, and then I give up and never go back to it.\n\nAt this point in my life, I feel completely lost. If someone asks me what I want to do or what I've been up to, I freeze up because I honestly don't know, and I haven't done anything meaningful since 2017. I haven't taken steps toward things I know I should be doing, like getting my driver's license, attending community college to improve my job prospects, finding a job with my limited skills, or developing social skills.\n\nI really want to hear from someone who has been through this and has managed to improve themselves without overly focusing on the fear of failure or finding ways to cope. I have ideas\u2014most of them are related to art\u2014but I've lost my passion and motivation to pursue them. When I'm not drawing,",
+          "upvotes": 331,
+          "subreddit": "ADHD",
+          "url": "https://reddit.com/r/ADHD/comments/1oieliq/anyone_with_adhd_has_figured_out_what_they_want/",
+          "sentiment": "Seeking Advice"
+        },
+        {
+          "title": "ADHD stops me doing the things I love",
+          "text": "Has anyone else had that stuck feeling, kind of paralysis, that not only stops you doing the things you need to do but also the things you love doing.\n\nLike any other ADHD person, I have hyperfixations and obsessive bouts, that eventually wane. However, there are a few things I'm genuinely passionate about, not just hobbies that come and go. My issue is when I'm in that stuck/paralysis feeling, I stop doing the things I'm passionate about, I just brain rot in front of screens or take naps. \n\nFor example, I actually love studying, but I always put it off and procrastinate. When I'm finally forced to study because there's an exam the next day, I realise how much I enjoy it. I think to myself \"wow this is actually really fun, why was I putting it off all this time\". I absolutely love yoga and meditation, but I rarely actually do it. I find myself lying in bed thinking about how nice, relaxing, and calming it would be. But I'm just stuck, paralysed, almost numb.\n\nI know that my depression ",
+          "upvotes": 113,
+          "subreddit": "ADHDwomen",
+          "url": "https://reddit.com/r/adhdwomen/comments/1mg2j43/adhd_stops_me_doing_the_things_i_love/",
+          "sentiment": "Fed Up"
+        }
+      ],
+      "quotes": [
+        "I find I just get very very little enjoyment out of most things and I\u2019ve always kind of been this way.",
+        "Imagine living a life where you wake up, survive, go to bed. Every Monday is a Tuesday, Wednesday, Friday, Saturday, and Sunday. There isn't a single thing that makes you feel bad. Never. As if you couldn't care less.",
+        "Has anyone else had that stuck feeling, kind of paralysis, that not only stops you doing the things you need to do but also the things you love doing.",
+        "Emotions didn\u2019t register at all, no fear, no excitement, no sadness. I couldn\u2019t feel my body properly either.",
+        "Throughout the day I just feel so vacant, and numbed."
+      ],
+      "wordcloud_path": "/wordclouds/chapter_7_ahedonia.png",
+      "csv_filename": "chapter_7_ahedonia.csv"
+    },
+    {
+      "name": "invisibility",
+      "description": "Being overlooked or treated as non-essential despite being present",
+      "total_posts": 430,
+      "by_subreddit": {
+        "ADHDwomen": 71,
+        "neurodiversity": 71,
+        "ADHD": 71,
+        "AutismInWomen": 71,
+        "autism": 71,
+        "Alexithymia": 26,
+        "ADHDers": 49
+      },
+      "sentiment_breakdown": {
+        "Inspirational": 30,
+        "Fed Up": 162,
+        "Seeking Advice": 140,
+        "Supportive": 20,
+        "Neutral": 78
+      },
+      "top_posts": [
+        {
+          "title": "Stop coming to this subreddit to ask if your awful SO is awful because of ADHD",
+          "text": "I've officially hit my limit with how many of these I have seen on this sub. And honestly I'm offended. I don't care how ignorant you are, you made the decision to come to a sub full of people with ADHD, so you can ask people with ADHD \"hey my partner is a stupid lazy asshole who treats me poorly so I just wanted to ask you guys if its because they have (or just claim they have) stupid lazy asshole disorder\".\n\nFuck off.\n\nEducate yourself with some simple googling and post on a relationship subreddit.",
+          "upvotes": 6862,
+          "subreddit": "ADHD",
+          "url": "https://reddit.com/r/ADHD/comments/1i3ivj8/stop_coming_to_this_subreddit_to_ask_if_your/",
+          "sentiment": "Fed Up"
+        },
+        {
+          "title": "RFK Jr., now confirmed, is a threat to our existence.",
+          "text": "https://www.yahoo.com/news/adderall-rfk-jr-probably-quite-144814863.html\n\nWe need to figure out a way to make sure that our voices are heard before RFK takes away stimulants from us.  I'm open to suggestions and I understand this title may be hyperbolic, but I am seriously concerned and would like to prevent any trips to \"wellness camps.\"",
+          "upvotes": 5401,
+          "subreddit": "ADHD",
+          "url": "https://reddit.com/r/ADHD/comments/1ioso5c/rfk_jr_now_confirmed_is_a_threat_to_our_existence/",
+          "sentiment": "Fed Up"
+        },
+        {
+          "title": "Feeling self conscious about new tattoo",
+          "text": "I got a tattoo I've been wanting for a long time today. To be clear I love the design and I do think it looks great, the artwork is gorgeous and the artist did an awesome job. I had always pictured it would be about  25% smaller but when she showed me the different size options I thought the bigger size looked really cool so I said let's got for it. Now I can't ignore the nagging thought in the back of my mind that I let my ADHD impulsivity get the best of me and made a dumb choice when choosing the size and now I have this freakishly huge tattoo that takes over my entire forearm. \ud83d\ude2c\ud83d\ude2c\ud83d\ude2c I guess I'm just looking for some reassurance that I'll get over the initial shock and feel more comfortable about the size over time but it's certainly not subtle! \n\nDid I screw up? \ud83d\ude29",
+          "upvotes": 3858,
+          "subreddit": "ADHDwomen",
+          "url": "https://reddit.com/r/adhdwomen/comments/1nqvcjc/feeling_self_conscious_about_new_tattoo/",
+          "sentiment": "Seeking Advice"
+        }
+      ],
+      "quotes": [
+        "I prefer to be invisible. Is this an ADHD thing or just a me thing? I feel like it\u2019s related to masking.",
+        "Am I the only one who feels embarrassed to even exist in public? I was holding in my sneezes because I didn\u2019t want to be perceived or noticed by anyone.",
+        "People tell you you\u2019re weird and judge you your whole life. Then when it comes out you have autism, \"you look normal to me\", \"you don\u2019t look autistic\".",
+        "I found out today that sometimes normies don't hear what we hear... She said, \"What alarm?\" I said, \"You don't hear that?\"",
+        "The Woman History Erased: Grunya Sukhareva discovered autism 20 years before Kanner and Asperger. She included girls and understood the neurology decades before anyone else. Today, the education system... ignore her."
+      ],
+      "wordcloud_path": "/wordclouds/chapter_7_invisibility.png",
+      "csv_filename": "chapter_7_invisibility.csv"
+    }
+  ]
+}
