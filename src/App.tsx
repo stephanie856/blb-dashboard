@@ -28,7 +28,13 @@ interface Theme {
   csv_path?: string;
   wordcloud_path?: string;
   // ADD THIS LINE BELOW:
-  related_chapters?: Array<{ chapter_name: string; chapter_quote: string; }>;
+  related_chapters?: Array<{ chapter_name: string; chapter_quote: string; }>; 
+  book_mapping?: {
+    context?: string;
+    chapter_name?: string;
+    quote?: string;
+    chapter_quote?: string;
+  };
 }
 
 interface AnalysisData {
@@ -705,26 +711,29 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
 
           {/* Word Cloud */}
           {/* Book Chapter Mapping */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-5 shadow-sm">
-            <h4 className="text-xs font-bold text-amber-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <BookOpen size={16} /> Book Chapter Mapping
+          {/* Book Validation Section */}
+          <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <BookOpen size={14}/> Book Validation
             </h4>
-            <div className="space-y-4">
-              {theme.related_chapters && theme.related_chapters.length > 0 ? (
-                theme.related_chapters.map((rel, i) => (
-                  <div key={i} className="border-l-2 border-amber-400 pl-4 py-1">
-                    <p className="text-xs font-bold text-amber-800 mb-1">{rel.chapter_name}</p>
-                    <p className="text-sm text-amber-900 italic font-serif leading-relaxed">
-                      "{rel.chapter_quote}"
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-amber-700 italic">
-                  No direct chapter mapping identified for this theme in the PDF.
-                </p>
-              )}
-            </div>
+            {theme.book_mapping ? (
+              <div className="space-y-4">
+                <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-indigo-400"></div>
+                  <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase">
+                    {theme.book_mapping.context || theme.book_mapping.chapter_name || 'From Your Book'}
+                  </p>
+                  <p className="italic text-slate-700 text-sm font-medium leading-relaxed">
+                    "{theme.book_mapping.quote || theme.book_mapping.chapter_quote}"
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-slate-400 text-sm italic p-4 bg-white border border-slate-100 rounded-lg">
+                <Info size={14} />
+                Book quote extraction pending - check PDF path in scraper
+              </div>
+            )}
           </div>
 
           {/* Word Cloud */}

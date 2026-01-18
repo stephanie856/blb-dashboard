@@ -1,5 +1,5 @@
 import React from 'react';
-import { Theme } from '../types';
+import type { Theme } from '../types';
 import { TrendingUp, MessageSquare, Heart, Lightbulb, Users } from 'lucide-react';
 
 interface ThemeCardProps {
@@ -95,6 +95,31 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, totalPostsInChapter }) => 
                 <p className="text-lg font-bold text-slate-900">{count}</p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/*
+          To make word clouds accessible, copy them to public/wordclouds:
+          cp output/wordclouds/* public/wordclouds/
+          Then reference them below using a relative path.
+        */}
+        <div>
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            Common Language Patterns
+          </h4>
+          {theme.wordcloud_path ? (
+            <img 
+              src={`/wordclouds/${theme.wordcloud_path}`}
+              alt={`Word cloud for ${theme.name}`}
+              className="w-full rounded-lg border border-slate-200"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling.style.display = 'block';
+              }}
+            />
+          ) : null}
+          <div style={{display: 'none'}} className="bg-slate-50 rounded-lg p-4 text-slate-400 text-sm text-center">
+            Word cloud visualization unavailable
           </div>
         </div>
       </div>
