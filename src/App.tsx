@@ -1,12 +1,3 @@
-// Add state for the filter
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  // Filter themes by functional_type if activeFilter is set
-  const filteredThemes = React.useMemo(() => {
-    if (!data) return [];
-    return activeFilter
-      ? data.themes.filter((t: Theme) => t.functional_type === activeFilter)
-      : data.themes;
-  }, [data, activeFilter]);
 import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -774,6 +765,15 @@ const App: React.FC = () => {
   const [view, setView] = useState<'home' | 'dashboard'>('home');
   const [data, setData] = useState<AnalysisData | null>(null);
   const [history, setHistory] = useState<AnalysisData[]>([]);
+  // Add state for the filter
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  // Move filteredThemes inside App component and only use when data is defined
+  const filteredThemes = React.useMemo(() => {
+    if (!data || !data.themes) return [];
+    return activeFilter
+      ? data.themes.filter((t: Theme) => t.functional_type === activeFilter)
+      : data.themes;
+  }, [data, activeFilter]);
 
   // Load history on mount
   useEffect(() => {
