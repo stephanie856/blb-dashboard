@@ -1,3 +1,12 @@
+// Add state for the filter
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  // Filter themes by functional_type if activeFilter is set
+  const filteredThemes = React.useMemo(() => {
+    if (!data) return [];
+    return activeFilter
+      ? data.themes.filter((t: Theme) => t.functional_type === activeFilter)
+      : data.themes;
+  }, [data, activeFilter]);
 import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -37,6 +46,7 @@ interface Theme {
     quote?: string;
     chapter_quote?: string;
   }>;
+  functional_type?: string;
 }
 
 interface AnalysisData {
@@ -1065,9 +1075,31 @@ const App: React.FC = () => {
           {/* Stats Table */}
           <StatsTable data={data} />
         </section>
+        {/* Filter UI */}
+        <div className="mb-8 flex flex-wrap gap-3 items-center">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter by Functional Type:</span>
+          <button
+            className={`px-3 py-1 rounded-full border text-xs font-semibold transition-colors ${!activeFilter ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
+            onClick={() => setActiveFilter(null)}
+          >
+            All
+          </button>
+          {Array.from(new Set(data.themes.map((t: Theme) => t.functional_type).filter(Boolean))).map((ft) => {
+            const filterValue = ft ?? '';
+            return (
+              <button
+                key={filterValue}
+                className={`px-3 py-1 rounded-full border text-xs font-semibold transition-colors ${activeFilter === filterValue ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
+                onClick={() => setActiveFilter(filterValue)}
+              >
+                {filterValue}
+              </button>
+            );
+          })}
+        </div>
         {/* Theme Cards */}
         <section className="space-y-8">
-          {data.themes.map((theme, index) => (
+          {filteredThemes.map((theme: Theme, index: number) => (
             <ThemeCard 
               key={index} 
               theme={theme} 
