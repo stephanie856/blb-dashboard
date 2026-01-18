@@ -813,6 +813,7 @@ const App: React.FC = () => {
     reader.onload = (e) => {
       try {
         const result = JSON.parse(e.target?.result as string);
+        console.log('Uploaded JSON:', result); // Debug log
         if (result.themes) {
           setDashboardData(result.themes);
           setMetadata(result.metadata || null);
@@ -950,7 +951,7 @@ const App: React.FC = () => {
 
   // --- DASHBOARD VIEW ---
   if (view === 'dashboard') {
-    if (dashboardData.length === 0) {
+    if (!dashboardData || dashboardData.length === 0) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
           <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-lg text-center max-w-md mx-auto">
@@ -966,13 +967,13 @@ const App: React.FC = () => {
         </div>
       );
     }
-
+    // Only call hooks and render dashboard if dashboardData is present
     const totalPosts = dashboardData.reduce((sum, t) => sum + t.total_posts, 0);
     const totalComments = dashboardData.reduce((sum, t) => sum + (t.engagement?.comments || 0), 0);
     const totalEngagement = totalPosts + totalComments;
     const filteredThemes = React.useMemo(() => {
       return activeFilter
-        ? dashboardData.filter((t: Theme) => t.functional_type === activeFilter)
+        ? dashboardData.filter((t) => t.functional_type === activeFilter)
         : dashboardData;
     }, [dashboardData, activeFilter]);
 
