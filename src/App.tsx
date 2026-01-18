@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Download, BookOpen, ChevronLeft, TrendingUp, Share2, MessageSquare, 
-  Award, ExternalLink, Info, Users, Printer, RefreshCw } from 'lucide-react';
+  Award, ExternalLink, Info, Users, Printer } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, 
   ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 
@@ -434,7 +434,7 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
 
           {/* Download CSV Button */}
           {theme.csv_path && (
-            
+            <a
               href={theme.csv_path}
               download
               className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition-colors border border-slate-200"
@@ -455,7 +455,7 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
             </h4>
             <div className="space-y-2">
               {theme.top_posts.slice(0, 3).map((post, i) => (
-                
+                <a
                   key={i}
                   href={post.url}
                   target="_blank"
@@ -489,7 +489,7 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
               {theme.quotes.slice(0, 3).map((quote, i) => (
                 <blockquote 
                   key={i} 
-                  className="pl-4 border-l-3 border-indigo-300 text-slate-700 text-sm italic leading-relaxed"
+                  className="pl-4 border-l-4 border-indigo-300 text-slate-700 text-sm italic leading-relaxed"
                 >
                   "{quote}"
                 </blockquote>
