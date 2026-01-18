@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Upload, Download, BookOpen, ChevronLeft, TrendingUp, Share2, MessageSquare, 
   Award, ExternalLink, Info, Users, Printer } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, 
-  ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
+  ResponsiveContainer, Cell, CartesianGrid, PieChart, Pie } from 'recharts';
 
 // --- TYPES ---
 interface Theme {
@@ -39,6 +39,13 @@ interface AnalysisData {
     time_filter: string;
   };
   themes: Theme[];
+}
+
+// Theme crossover type for distribution chart
+interface ThemeCrossover {
+  themes: string[];
+  count: number;
+  percentage: number;
 }
 
 // --- LOCAL STORAGE KEYS ---
@@ -226,6 +233,203 @@ const getSignificanceColor = (significance: string): string => {
 };
 
 // --- COMPONENTS ---
+
+// Theme Distribution & Overlap Chart
+const ThemeDistributionChart: React.FC<{ data: AnalysisData }> = ({ data }) => {
+  const totalPosts = data.themes.reduce((sum, t) => sum + t.total_posts, 0);
+  // Calculate individual theme percentages
+  const themeDistribution = data.themes.map(theme => ({
+    name: theme.name.replace('-', ' '),
+    posts: theme.total_posts,
+    percentage: Math.round((theme.total_posts / totalPosts) * 100)
+  }));
+
+  // Calculate crossover data from overlaps
+  const crossoverData: ThemeCrossover[] = [];
+  data.themes.forEach(theme => {
+    if (theme.overlaps && theme.overlaps.length > 0) {
+      theme.overlaps.forEach(overlap => {
+        // Extract theme name and percentage from format "theme-name (45%)"
+        const match = overlap.match(/^(.+?)\s*\((\d+)%\)$/);
+        if (match) {
+          const [, otherThemeName, percentage] = match;
+          const crossoverPercentage = parseInt(percentage);
+          // Calculate actual post count based on percentage of current theme's posts
+          const estimatedCrossoverPosts = Math.round((theme.total_posts * crossoverPercentage) / 100);
+          crossoverData.push({
+            themes: [theme.name, otherThemeName.trim()],
+            count: estimatedCrossoverPosts,
+            percentage: crossoverPercentage
+          });
+        }
+      });
+    }
+  });
+  // Sort crossover by count descending
+  const sortedCrossover = crossoverData.sort((a, b) => b.count - a.count);
+  const THEME_COLORS = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-8">
+      <div className="mb-6">
+        <h3 className="text-xl font-bold text-slate-900 mb-2">Theme Distribution & Overlap Analysis</h3>
+        <p className="text-sm text-slate-600">
+          Out of <span className="font-bold text-indigo-600">{totalPosts.toLocaleString()}</span> total posts scraped across all themes
+        </p>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* LEFT: Individual Theme Distribution */}
+        <div>
+          <h4 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+            <TrendingUp size={16} />
+            Individual Theme Breakdown
+          </h4>
+          {/* Visual Bar Chart */}
+          <div className="space-y-3 mb-6">
+            {themeDistribution.map((theme, index) => (
+              <div key={index}>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-semibold text-slate-700 capitalize">
+                    {theme.name}
+                  </span>
+                  <span className="text-sm font-bold text-slate-900">
+                    {theme.percentage}% ({theme.posts.toLocaleString()} posts)
+                  </span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${theme.percentage}%`,
+                      backgroundColor: THEME_COLORS[index % THEME_COLORS.length]
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Pie Chart Alternative */}
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={themeDistribution}
+                  dataKey="posts"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={({ name, percentage }) => `${name}: ${percentage}%`}
+                  labelLine={true}
+                >
+                  {themeDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={THEME_COLORS[index % THEME_COLORS.length]} />
+                  ))}
+                </Pie>
+                <RechartsTooltip 
+                  formatter={(value: number) => [`${value.toLocaleString()} posts`, 'Volume']}
+                  contentStyle={{ 
+                    borderRadius: '8px', 
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        {/* RIGHT: Theme Crossover Analysis */}
+        <div>
+          <h4 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+            <Share2 size={16} />
+            Theme Crossover (Co-occurrence)
+          </h4>
+          {sortedCrossover.length > 0 ? (
+            <>
+              <div className="space-y-4 mb-6">
+                {sortedCrossover.slice(0, 5).map((crossover, index) => (
+                  <div key={index} className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="text-xs font-bold text-indigo-600 capitalize">
+                          {crossover.themes[0].replace('-', ' ')}
+                        </span>
+                        <span className="text-slate-400">×</span>
+                        <span className="text-xs font-bold text-pink-600 capitalize">
+                          {crossover.themes[1].replace('-', ' ')}
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold text-slate-900">
+                        {crossover.percentage}%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full transition-all duration-500"
+                          style={{ width: `${crossover.percentage}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-slate-500 whitespace-nowrap">
+                        ~{crossover.count.toLocaleString()} posts
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Summary Stats */}
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                <h5 className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2">
+                  Key Insight
+                </h5>
+                <p className="text-sm text-indigo-800 leading-relaxed">
+                  <span className="font-bold">
+                    {sortedCrossover[0]?.percentage}%
+                  </span> of posts discussing{' '}
+                  <span className="font-semibold capitalize">
+                    {sortedCrossover[0]?.themes[0].replace('-', ' ')}
+                  </span>{' '}
+                  also mentioned{' '}
+                  <span className="font-semibold capitalize">
+                    {sortedCrossover[0]?.themes[1].replace('-', ' ')}
+                  </span>
+                  , indicating strong thematic correlation.
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="h-64 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 p-6">
+              <Share2 size={32} className="mb-3 opacity-50" />
+              <p className="text-sm text-center">
+                No crossover data available in this analysis.
+                <br />
+                <span className="text-xs">
+                  Crossover is calculated from theme overlap percentages.
+                </span>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Bottom Summary */}
+      <div className="mt-6 pt-6 border-t border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          <div>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Themes Analyzed</p>
+            <p className="text-2xl font-bold text-slate-900">{data.themes.length}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Total Posts</p>
+            <p className="text-2xl font-bold text-indigo-600">{totalPosts.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Theme Overlaps Detected</p>
+            <p className="text-2xl font-bold text-pink-600">{sortedCrossover.length}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const StatsTable: React.FC<{ data: AnalysisData }> = ({ data }) => (
   <div className="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm mb-8">
@@ -772,7 +976,6 @@ ${new Date().toISOString()}
 
   return (
     <div className="min-h-screen bg-slate-50">
-      
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm print:hidden">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -783,7 +986,6 @@ ${new Date().toISOString()}
             <ChevronLeft size={18} />
             <span>Archive</span>
           </button>
-
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
               {data.metadata.chapter_number}
@@ -793,7 +995,6 @@ ${new Date().toISOString()}
               <p className="text-xs text-slate-500">Chapter {data.metadata.chapter_number}</p>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               onClick={exportReport}
@@ -812,9 +1013,7 @@ ${new Date().toISOString()}
           </div>
         </div>
       </header>
-
       <main className="max-w-7xl mx-auto px-6 py-10">
-        
         {/* Methodology Banner */}
         <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-6 mb-10 print:mb-6">
           <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
@@ -842,11 +1041,11 @@ ${new Date().toISOString()}
             </div>
           </div>
         </div>
-
+        {/* Theme Distribution Chart */}
+        <ThemeDistributionChart data={data} />
         {/* Key Metrics */}
         <section className="mb-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            
             {/* Unique Authors */}
             <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -859,7 +1058,6 @@ ${new Date().toISOString()}
                 <Users size={12} /> Unique Individuals
               </p>
             </div>
-
             {/* Total Volume */}
             <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -870,7 +1068,6 @@ ${new Date().toISOString()}
               </p>
               <p className="text-xs text-slate-400">Community Posts</p>
             </div>
-
             {/* Engagement */}
             <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -882,11 +1079,9 @@ ${new Date().toISOString()}
               <p className="text-xs text-slate-400">Posts + Comments</p>
             </div>
           </div>
-
           {/* Stats Table */}
           <StatsTable data={data} />
         </section>
-
         {/* Theme Cards */}
         <section className="space-y-8">
           {data.themes.map((theme, index) => (
@@ -897,7 +1092,6 @@ ${new Date().toISOString()}
             />
           ))}
         </section>
-
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-slate-200 text-center text-sm text-slate-500">
           <p className="mb-2">
