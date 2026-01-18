@@ -823,6 +823,8 @@ const App: React.FC = () => {
 
   const loadFromHistory = (item: AnalysisData) => {
     setData(item);
+    setDashboardData(item.themes);
+    setMetadata(item.metadata || null);
     setView('dashboard');
   };
 
@@ -929,6 +931,8 @@ const App: React.FC = () => {
             <button
               onClick={() => {
                 setData(SAMPLE_DATA);
+                setDashboardData(SAMPLE_DATA.themes);
+                setMetadata(SAMPLE_DATA.metadata || null);
                 setView('dashboard');
               }}
               className="text-sm text-slate-500 hover:text-indigo-600 underline transition-colors"
