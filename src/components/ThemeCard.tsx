@@ -52,13 +52,7 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, totalPostsInChapter }) => 
             </h4>
             <div className="space-y-2">
               {theme.top_posts.map((post, idx) => (
-                
-                  key={idx}
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
-                >
+                <a key={idx} href={post.url} target="_blank" rel="noopener noreferrer" className="block p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
                   <p className="font-semibold text-slate-900 mb-1">{post.title}</p>
                   <div className="flex items-center gap-3 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
