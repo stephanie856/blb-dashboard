@@ -82,7 +82,7 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, totalPostsInChapter }) => 
             <div className="space-y-2">
               {theme.quotes.map((quote, idx) => (
                 <div key={idx} className="p-4 bg-indigo-50 border-l-4 border-indigo-600 rounded-r-lg">
-                  <p className="text-slate-700 italic">"{quote}"</p>
+                  <p className="text-slate-700 italic">&ldquo;{quote}&rdquo;</p>
                 </div>
               ))}
             </div>
