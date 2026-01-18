@@ -765,6 +765,8 @@ const App: React.FC = () => {
   const [view, setView] = useState<'home' | 'dashboard'>('home');
   const [data, setData] = useState<AnalysisData | null>(null);
   const [history, setHistory] = useState<AnalysisData[]>([]);
+  const [dashboardData, setDashboardData] = useState<Theme[]>([]);
+  const [metadata, setMetadata] = useState<AnalysisData['metadata'] | null>(null);
   // Add state for the filter
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   // Move filteredThemes inside App component and only use when data is defined
@@ -803,38 +805,24 @@ const App: React.FC = () => {
     }
   }, [data?.metadata.analysis_id]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = (e) => {
       try {
-        const json = JSON.parse(event.target?.result as string);
-        
-        // Validate structure
-        if (!json.metadata || !json.themes || !Array.isArray(json.themes)) {
-          alert('Invalid JSON structure. Must include metadata and themes array.');
-          return;
+        const result = JSON.parse(e.target?.result as string);
+        if (result.themes) {
+          setDashboardData(result.themes);
+          setMetadata(result.metadata || null);
+          setView('dashboard');
+          console.log("✅ Data Loaded Successfully");
+        } else {
+          console.error("❌ Invalid JSON: Themes array missing");
         }
-
-        // Add defaults for missing fields
-        const processedData: AnalysisData = {
-          ...json,
-          themes: json.themes.map((theme: any) => ({
-            ...theme,
-            engagement: theme.engagement || { comments: 0, avg_upvotes: 0, awards: 0 },
-            temporal_data: theme.temporal_data || [],
-            overlaps: theme.overlaps || [],
-            quotes: theme.quotes || []
-          }))
-        };
-
-        setData(processedData);
-        setView('dashboard');
       } catch (err) {
-        alert('Failed to parse JSON file. Please check the format.');
-        console.error('JSON parse error:', err);
+        console.error("❌ Parsing Error:", err);
       }
     };
     reader.readAsText(file);
@@ -961,165 +949,171 @@ const App: React.FC = () => {
   }
 
   // --- DASHBOARD VIEW ---
-  if (!data) return null;
+  if (view === 'dashboard' && dashboardData.length > 0) {
+    const totalPosts = dashboardData.reduce((sum, t) => sum + t.total_posts, 0);
+    const totalComments = dashboardData.reduce((sum, t) => sum + (t.engagement?.comments || 0), 0);
+    const totalEngagement = totalPosts + totalComments;
+    const filteredThemes = React.useMemo(() => {
+      return activeFilter
+        ? dashboardData.filter((t: Theme) => t.functional_type === activeFilter)
+        : dashboardData;
+    }, [dashboardData, activeFilter]);
 
-  const totalPosts = data.themes.reduce((sum, t) => sum + t.total_posts, 0);
-  const totalComments = data.themes.reduce((sum, t) => sum + (t.engagement?.comments || 0), 0);
-  const totalEngagement = totalPosts + totalComments;
-
-  return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm print:hidden">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <button
-            onClick={() => setView('home')}
-            className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold"
-          >
-            <ChevronLeft size={18} />
-            <span>Archive</span>
-          </button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
-              {data.metadata.chapter_number}
-            </div>
-            <div className="hidden md:block">
-              <h1 className="font-bold text-slate-900">{data.metadata.analysis_id}</h1>
-              <p className="text-xs text-slate-500">Chapter {data.metadata.chapter_number}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
+    return (
+      <div className="min-h-screen bg-slate-50">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm print:hidden">
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <button
-              onClick={exportReport}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-semibold transition-colors shadow-lg"
+              onClick={() => setView('home')}
+              className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold"
             >
-              <Download size={16} />
-              <span className="hidden sm:inline">Export</span>
+              <ChevronLeft size={18} />
+              <span>Archive</span>
             </button>
-            <button
-              onClick={() => window.print()}
-              className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
-              title="Print Dashboard"
-            >
-              <Printer size={20} />
-            </button>
-          </div>
-        </div>
-      </header>
-      <main ref={dashboardRef} className="max-w-7xl mx-auto px-6 py-10">
-        {/* Methodology Banner */}
-        <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-6 mb-10 print:mb-6">
-          <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
-            <Info size={18} />
-            Research Methodology
-          </h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
-            <div>
-              <p className="font-semibold mb-1">Communities Analyzed</p>
-              <p className="text-blue-700">{data.metadata.subreddits.join(', ')}</p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+                {metadata?.chapter_number}
+              </div>
+              <div className="hidden md:block">
+                <h1 className="font-bold text-slate-900">{metadata?.analysis_id}</h1>
+                <p className="text-xs text-slate-500">Chapter {metadata?.chapter_number}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold mb-1">Time Period</p>
-              <p className="text-blue-700">{data.metadata.time_filter}</p>
-            </div>
-            <div>
-              <p className="font-semibold mb-1">Total Volume</p>
-              <p className="text-blue-700">
-                {totalPosts.toLocaleString()} posts across {data.themes.length} themes
-              </p>
-            </div>
-            <div>
-              <p className="font-semibold mb-1">Analysis Date</p>
-              <p className="text-blue-700">{data.metadata.analyzed_at}</p>
-            </div>
-          </div>
-        </div>
-        {/* Theme Distribution Chart */}
-        <ThemeDistributionChart data={data} />
-        {/* Key Metrics */}
-        <section className="mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {/* Unique Authors */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Independent Validations
-              </p>
-              <p className="text-3xl font-bold text-indigo-600 my-2">
-                {data.metadata.unique_authors?.toLocaleString() || '-'}
-              </p>
-              <p className="text-xs text-slate-400 flex items-center gap-1">
-                <Users size={12} /> Unique Individuals
-              </p>
-            </div>
-            {/* Total Volume */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Total Volume
-              </p>
-              <p className="text-3xl font-bold text-teal-600 my-2">
-                {totalPosts.toLocaleString()}
-              </p>
-              <p className="text-xs text-slate-400">Community Posts</p>
-            </div>
-            {/* Engagement */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Total Engagement
-              </p>
-              <p className="text-3xl font-bold text-purple-600 my-2">
-                {totalEngagement.toLocaleString()}
-              </p>
-              <p className="text-xs text-slate-400">Posts + Comments</p>
-            </div>
-          </div>
-          {/* Stats Table */}
-          <StatsTable data={data} />
-        </section>
-        {/* Filter UI */}
-        <div className="mb-8 flex flex-wrap gap-3 items-center">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter by Functional Type:</span>
-          <button
-            className={`px-3 py-1 rounded-full border text-xs font-semibold transition-colors ${!activeFilter ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
-            onClick={() => setActiveFilter(null)}
-          >
-            All
-          </button>
-          {Array.from(new Set(data.themes.map((t: Theme) => t.functional_type).filter(Boolean))).map((ft) => {
-            const filterValue = ft ?? '';
-            return (
+            <div className="flex items-center gap-2">
               <button
-                key={filterValue}
-                className={`px-3 py-1 rounded-full border text-xs font-semibold transition-colors ${activeFilter === filterValue ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
-                onClick={() => setActiveFilter(filterValue)}
+                onClick={exportReport}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-semibold transition-colors shadow-lg"
               >
-                {filterValue}
+                <Download size={16} />
+                <span className="hidden sm:inline">Export</span>
               </button>
-            );
-          })}
-        </div>
-        {/* Theme Cards */}
-        <section className="space-y-8">
-          {filteredThemes.map((theme: Theme, index: number) => (
-            <ThemeCard 
-              key={index} 
-              theme={theme} 
-              totalPosts={totalPosts} 
-            />
-          ))}
-        </section>
-        {/* Footer */}
-        <footer className="mt-16 pt-8 border-t border-slate-200 text-center text-sm text-slate-500">
-          <p className="mb-2">
-            Generated by <span className="font-semibold text-indigo-600">NeuroReddit Research Dashboard</span>
-          </p>
-          <p className="text-xs text-slate-400">
-            Data collected: {data.metadata.analyzed_at} • 
-            Analysis ID: {data.metadata.analysis_id}
-          </p>
-        </footer>
-      </main>
-    </div>
-  );
+              <button
+                onClick={() => window.print()}
+                className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                title="Print Dashboard"
+              >
+                <Printer size={20} />
+              </button>
+            </div>
+          </div>
+        </header>
+        <main ref={dashboardRef} className="max-w-7xl mx-auto px-6 py-10">
+          {/* Methodology Banner */}
+          <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-6 mb-10 print:mb-6">
+            <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
+              <Info size={18} />
+              Research Methodology
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
+              <div>
+                <p className="font-semibold mb-1">Communities Analyzed</p>
+                <p className="text-blue-700">{metadata?.subreddits?.join(', ')}</p>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Time Period</p>
+                <p className="text-blue-700">{metadata?.time_filter}</p>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Total Volume</p>
+                <p className="text-blue-700">
+                  {totalPosts.toLocaleString()} posts across {dashboardData.length} themes
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Analysis Date</p>
+                <p className="text-blue-700">{metadata?.analyzed_at}</p>
+              </div>
+            </div>
+          </div>
+          {/* Theme Distribution Chart */}
+          <ThemeDistributionChart data={{ metadata: metadata as any, themes: dashboardData }} />
+          {/* Key Metrics */}
+          <section className="mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Unique Authors */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Independent Validations
+                </p>
+                <p className="text-3xl font-bold text-indigo-600 my-2">
+                  {metadata?.unique_authors?.toLocaleString() || '-'}
+                </p>
+                <p className="text-xs text-slate-400 flex items-center gap-1">
+                  <Users size={12} /> Unique Individuals
+                </p>
+              </div>
+              {/* Total Volume */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Total Volume
+                </p>
+                <p className="text-3xl font-bold text-teal-600 my-2">
+                  {totalPosts.toLocaleString()}
+                </p>
+                <p className="text-xs text-slate-400">Community Posts</p>
+              </div>
+              {/* Engagement */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Total Engagement
+                </p>
+                <p className="text-3xl font-bold text-purple-600 my-2">
+                  {totalEngagement.toLocaleString()}
+                </p>
+                <p className="text-xs text-slate-400">Posts + Comments</p>
+              </div>
+            </div>
+            <StatsTable data={{ metadata: metadata as any, themes: dashboardData }} />
+          </section>
+          {/* Filter UI */}
+          <div className="mb-8 flex flex-wrap gap-3 items-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter by Functional Type:</span>
+            <button
+              className={`px-3 py-1 rounded-full border text-xs font-semibold transition-colors ${!activeFilter ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
+              onClick={() => setActiveFilter(null)}
+            >
+              All
+            </button>
+            {Array.from(new Set(dashboardData.map((t: Theme) => t.functional_type).filter(Boolean))).map((ft) => {
+              const filterValue = ft ?? '';
+              return (
+                <button
+                  key={filterValue}
+                  className={`px-3 py-1 rounded-full border text-xs font-semibold transition-colors ${activeFilter === filterValue ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
+                  onClick={() => setActiveFilter(filterValue)}
+                >
+                  {filterValue}
+                </button>
+              );
+            })}
+          </div>
+          {/* Theme Cards */}
+          <section className="space-y-8">
+            {filteredThemes.map((theme: Theme, index: number) => (
+              <ThemeCard 
+                key={index} 
+                theme={theme} 
+                totalPosts={totalPosts} 
+              />
+            ))}
+          </section>
+          {/* Footer */}
+          <footer className="mt-16 pt-8 border-t border-slate-200 text-center text-sm text-slate-500">
+            <p className="mb-2">
+              Generated by <span className="font-semibold text-indigo-600">NeuroReddit Research Dashboard</span>
+            </p>
+            <p className="text-xs text-slate-400">
+              Data collected: {metadata?.analyzed_at} • 
+              Analysis ID: {metadata?.analysis_id}
+            </p>
+          </footer>
+        </main>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default App;
