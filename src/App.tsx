@@ -949,7 +949,24 @@ const App: React.FC = () => {
   }
 
   // --- DASHBOARD VIEW ---
-  if (view === 'dashboard' && dashboardData.length > 0) {
+  if (view === 'dashboard') {
+    if (dashboardData.length === 0) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-lg text-center max-w-md mx-auto">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">No Data Loaded</h2>
+            <p className="text-slate-600 mb-6">No analysis data was found. Please upload a valid analysis JSON file or return to the archive.</p>
+            <button
+              onClick={() => setView('home')}
+              className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              Go Back to Archive
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     const totalPosts = dashboardData.reduce((sum, t) => sum + t.total_posts, 0);
     const totalComments = dashboardData.reduce((sum, t) => sum + (t.engagement?.comments || 0), 0);
     const totalEngagement = totalPosts + totalComments;
