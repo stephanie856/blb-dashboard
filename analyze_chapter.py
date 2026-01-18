@@ -302,32 +302,82 @@ def extract_quotes(posts, theme_name):
         return []
 
 def generate_wordcloud(posts, theme_name, chapter_num):
-    if not posts: return
-    text_list = [f"{p['title']} {p['text']}" for p in posts]
-    text = " ".join(text_list)
-
-    # --- CUSTOM STOPWORDS (NOISE FILTER) ---
-    custom_stopwords = set(STOPWORDS)
-    custom_stopwords.update([
-        "going", "said", "say", "week", "day", "thing", "things", 
-        "actually", "really", "literally", "think", "know", "feel", 
-        "much", "even", "though", "will", "want", "make", "people",
-        "time", "year", "years", "got", "now", "one", "didn", "don",
-        "something", "anything", "back", "see", "way", "still", "good",
-        "need", "never", "always"
-    ])
-    
+    """Create word frequency visualization - ONLY meaningful terms"""
+    if not posts:
+        return
+    print(f"\n☁️  Generating word cloud...")
+    # Combine all text
+    all_text = " ".join([f"{p['title']} {p['text']}" for p in posts]).lower()
+    # WHITELIST APPROACH: Only include these types of words
+    meaningful_keywords = {
+        "masking", "mask", "masked",
+        "invisible", "invisibility", "overlooked", "unseen",
+        "burnout", "exhausted", "exhaustion",
+        "adhd", "add", "attention",
+        "autistic", "autism", "asd",
+        "alexithymia", "emotional", "emotions", "feelings",
+        "dissociation", "dissociate", "disconnected", "detached",
+        "freeze", "frozen", "paralysis", "paralyzed", "stuck",
+        "shutdown", "meltdown", "overload",
+        "executive", "dysfunction", "function", "functioning",
+        "overstimulated", "sensory", "overwhelmed",
+        "hypervigilance", "hypervigilant", "vigilant",
+        "rejection", "rsd", "sensitive", "sensitivity",
+        "neurodivergent", "neurodivergence", "neurotypical",
+        "stimming", "stim", "self-regulate",
+        "diagnosis", "diagnosed", "undiagnosed",
+        "symptoms", "symptom",
+        "brain", "cognitive", "mental",
+        "cope", "coping", "survival", "survive",
+        "struggle", "struggling", "difficult", "difficulty",
+        "support", "help", "advice",
+        "understand", "misunderstood", "misunderstanding",
+        "invalidate", "invalidated", "validation",
+        "accommodate", "accommodation", "accommodations",
+        "medication", "meds", "medicated", "unmedicated",
+        "therapy", "therapist", "psychiatrist", "psychologist",
+        "school", "work", "job", "workplace",
+        "relationships", "relationship", "partner", "friends",
+        "communication", "communicate",
+        "anxiety", "anxious", "depression", "depressed",
+        "trauma", "ptsd", "cptsd",
+        "identity", "self", "myself"
+    }
+    from collections import Counter
+    import re
+    words = re.findall(r'\b\w+\b', all_text)
+    # Filter to only meaningful words
+    filtered_words = [w for w in words if any(keyword in w for keyword in meaningful_keywords)]
+    # If too few words, fall back to less aggressive filtering
+    if len(filtered_words) < 50:
+        print("⚠️  Not enough meaningful keywords found, using standard filtering...")
+        # Use your previous comprehensive stopwords list here
+        try:
+            stopwords = set(STOPWORDS)
+        except NameError:
+            stopwords = set()
+        filtered_words = [w for w in words if w not in stopwords and len(w) > 3]
+    # Create frequency string
+    word_freq = Counter(filtered_words)
+    filtered_text = " ".join([word for word, count in word_freq.items() for _ in range(count)])
+    # Generate wordcloud
     wc = WordCloud(
-        width=1200, 
-        height=800, 
+        width=1200,
+        height=800,
         background_color='white',
-        stopwords=custom_stopwords,  # Apply filter
-        min_word_length=3            # Skip tiny words like "is", "at"
-    ).generate(text)
-    
+        colormap='viridis',
+        max_words=80,
+        relative_scaling=0.6,
+        min_font_size=12,
+        prefer_horizontal=0.7,
+        collocations=False
+    ).generate(filtered_text)
+    # Save as PNG
     filename = f"chapter_{chapter_num}_{theme_name.replace(' ', '_')}.png"
     path = f"output/wordclouds/{filename}"
     wc.to_file(path)
+    print(f"✅ Saved to {path}")
+    print(f"   Top words: {', '.join([w for w, c in word_freq.most_common(10)])}")
     return f"/wordclouds/{filename}"
 
 def save_csv(posts, theme_name, chapter_num):

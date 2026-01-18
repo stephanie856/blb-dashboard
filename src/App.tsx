@@ -27,6 +27,9 @@ interface Theme {
   temporal_data?: Array<{ month: string; count: number }>;
   csv_path?: string;
   wordcloud_path?: string;
+  // ADD THIS LINE BELOW:
+  related_chapters?: Array<{ chapter_name: string; chapter_quote: string; }>;
+}
 }
 
 interface AnalysisData {
@@ -702,6 +705,30 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
           </div>
 
           {/* Word Cloud */}
+          {/* Book Chapter Mapping */}
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-5 shadow-sm">
+            <h4 className="text-xs font-bold text-amber-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <BookOpen size={16} /> Book Chapter Mapping
+            </h4>
+            <div className="space-y-4">
+              {theme.related_chapters && theme.related_chapters.length > 0 ? (
+                theme.related_chapters.map((rel, i) => (
+                  <div key={i} className="border-l-2 border-amber-400 pl-4 py-1">
+                    <p className="text-xs font-bold text-amber-800 mb-1">{rel.chapter_name}</p>
+                    <p className="text-sm text-amber-900 italic font-serif leading-relaxed">
+                      "{rel.chapter_quote}"
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-amber-700 italic">
+                  No direct chapter mapping identified for this theme in the PDF.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Word Cloud */}
           {theme.wordcloud_path && (
             <div>
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
@@ -714,19 +741,6 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
               />
             </div>
           )}
-
-          {/* Book Validation Placeholder */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <BookOpen size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-sm font-bold text-amber-900 mb-1">Book Quote Matching</h4>
-                <p className="text-xs text-amber-700 leading-relaxed">
-                  Add your book PDF to <code className="bg-amber-100 px-1.5 py-0.5 rounded text-[11px] font-mono">/public/book.pdf</code> to enable automatic quote extraction and validation.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -839,16 +853,25 @@ THEMES VALIDATED
 ─────────────────────────────────────────────────────────────
 ${data.themes.map((theme, i) => {
   const topSub = Object.entries(theme.by_subreddit).sort((a, b) => b[1] - a[1])[0];
+  // Create the string for book mappings
+  const bookMappingText = theme.related_chapters && theme.related_chapters.length > 0
+    ? theme.related_chapters.map(rel => (
+        `      - Chapter: ${rel.chapter_name}\n      - Quote: "${rel.chapter_quote}"`
+      )).join('\n\n')
+    : "      - No direct book mapping identified.";
   return `
 ${i + 1}. ${theme.name.toUpperCase().replace('-', ' ')}
    Description: ${theme.description}
    Volume: ${theme.total_posts} posts
    Engagement: ${theme.engagement?.comments || 0} comments, ${theme.engagement?.avg_upvotes || 0} avg upvotes
    
-   Top Quote:
+   TOP REDDIT QUOTE:
    "${theme.quotes[0] || 'N/A'}"
    
-   Top Community: r/${topSub?.[0] || 'N/A'} (${topSub?.[1] || 0} posts)
+   BOOK VALIDATION:
+${bookMappingText}
+   
+   TOP COMMUNITY: r/${topSub?.[0] || 'N/A'} (${topSub?.[1] || 0} posts)
 `;
 }).join('\n')}
 
