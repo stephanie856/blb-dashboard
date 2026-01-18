@@ -29,12 +29,12 @@ interface Theme {
   wordcloud_path?: string;
   // ADD THIS LINE BELOW:
   related_chapters?: Array<{ chapter_name: string; chapter_quote: string; }>; 
-  book_mapping?: {
+  book_mappings?: Array<{
     context?: string;
     chapter_name?: string;
     quote?: string;
     chapter_quote?: string;
-  };
+  }>;
 }
 
 interface AnalysisData {
@@ -716,17 +716,19 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
               <BookOpen size={14}/> Book Validation
             </h4>
-            {theme.book_mapping ? (
+            {theme.book_mappings && theme.book_mappings.length > 0 ? (
               <div className="space-y-4">
-                <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-indigo-400"></div>
-                  <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase">
-                    {theme.book_mapping.context || theme.book_mapping.chapter_name || 'From Your Book'}
-                  </p>
-                  <p className="italic text-slate-700 text-sm font-medium leading-relaxed">
-                    "{theme.book_mapping.quote || theme.book_mapping.chapter_quote}"
-                  </p>
-                </div>
+                {theme.book_mappings.map((mapping, idx) => (
+                  <div key={idx} className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-indigo-400"></div>
+                    <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase">
+                      {mapping.context || mapping.chapter_name || 'From Your Book'}
+                    </p>
+                    <p className="italic text-slate-700 text-sm font-medium leading-relaxed">
+                      "{mapping.quote || mapping.chapter_quote}"
+                    </p>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="flex items-center gap-2 text-slate-400 text-sm italic p-4 bg-white border border-slate-100 rounded-lg">
