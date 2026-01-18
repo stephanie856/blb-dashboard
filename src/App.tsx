@@ -767,15 +767,7 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<AnalysisData[]>([]);
   const [dashboardData, setDashboardData] = useState<Theme[]>([]);
   const [metadata, setMetadata] = useState<AnalysisData['metadata'] | null>(null);
-  // Add state for the filter
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  // Move filteredThemes inside App component and only use when data is defined
-  const filteredThemes = React.useMemo(() => {
-    if (!data || !data.themes) return [];
-    return activeFilter
-      ? data.themes.filter((t: Theme) => t.functional_type === activeFilter)
-      : data.themes;
-  }, [data, activeFilter]);
 
   // Load history on mount
   useEffect(() => {
