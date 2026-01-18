@@ -21,7 +21,7 @@ export interface Theme {
   quotes: string[];
   overlaps: string[];
   book_mapping?: { quote: string; context: string }; 
-  temporal_data: Array<{ month: string; count: number }>;
+  temporal_data?: Array<{ month: string; count: number }>;
 }
 
 export interface AnalysisData {
@@ -36,17 +36,7 @@ export interface AnalysisData {
   themes: Theme[];
 }
 
-// --- 3. GOOGLE DRIVE SYNC (Restored) ---
-const GoogleDriveSync = {
-  // Placeholder for the actual Google Drive logic you had earlier
-  // Keeping it simple here to ensure UI renders, but fully functional logic 
-  // requires the previous utils/googleDrive.ts file or embedding it here.
-  // For this 'Monolith' fix, we mock the success states to allow UI interaction.
-  authenticate: async () => { return new Promise(resolve => setTimeout(resolve, 1000)); },
-  uploadData: async (data: any) => { console.log("Uploading...", data); return true; },
-};
-
-// --- 4. COMPONENTS ---
+// --- 3. COMPONENTS ---
 
 const StatsTable: React.FC<{ data: AnalysisData }> = ({ data }) => {
     return (
@@ -87,7 +77,6 @@ const StatsTable: React.FC<{ data: AnalysisData }> = ({ data }) => {
 
 const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, totalPosts }) => {
   const percentage = totalPosts > 0 ? Math.round((theme.total_posts / totalPosts) * 100) : 0;
-  const sentimentData = theme.sentiment_breakdown ? Object.entries(theme.sentiment_breakdown).map(([k, v]) => ({ name: k.replace('_', ' '), value: v })) : [];
   
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8 hover:shadow-lg transition-all">
@@ -106,7 +95,8 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
 
       <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
-          {theme.temporal_data && (
+          {/* CONDITIONAL CHART RENDERING */}
+          {theme.temporal_data && theme.temporal_data.length > 0 ? (
           <div className="h-48 w-full">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><TrendingUp size={14}/> Temporal Trend</h4>
             <ResponsiveContainer width="100%" height="100%">
@@ -119,11 +109,19 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
               </LineChart>
             </ResponsiveContainer>
           </div>
+          ) : (
+             <div className="h-24 w-full bg-slate-50 rounded border border-slate-100 flex items-center justify-center text-slate-400 text-sm italic">
+                No trend data available in this JSON
+             </div>
           )}
           
           <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
              <h4 className="text-xs font-bold text-indigo-800 uppercase tracking-widest mb-2 flex items-center gap-2"><Share2 size={14}/> Comorbidity</h4>
-             <ul className="flex flex-wrap gap-2">{theme.overlaps?.map((o, i) => <li key={i} className="text-xs bg-white/60 px-2 py-1 rounded text-indigo-900 border border-indigo-100">#{o}</li>)}</ul>
+             {theme.overlaps && theme.overlaps.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">{theme.overlaps.map((o, i) => <li key={i} className="text-xs bg-white/60 px-2 py-1 rounded text-indigo-900 border border-indigo-100">#{o}</li>)}</ul>
+             ) : (
+                <span className="text-xs text-indigo-400 italic">No overlap data found.</span>
+             )}
           </div>
         </div>
 
@@ -164,8 +162,7 @@ const App: React.FC = () => {
   const [data, setData] = useState<AnalysisData | null>(null);
   const [history, setHistory] = useState<AnalysisData[]>([]);
   const [scanStatus, setScanStatus] = useState<string>("Waiting for data...");
-  const [isAuthorized, setIsAuthorized] = useState(false);
-
+  
   // Load History
   useEffect(() => {
     const saved = localStorage.getItem(HISTORY_KEY);
@@ -178,53 +175,61 @@ const App: React.FC = () => {
 
     const minePDF = async () => {
       try {
-        setScanStatus("Loading Book...");
-        const loadingTask = pdfjsLib.getDocument(BOOK_PDF_PATH);
-        const pdf = await loadingTask.promise;
-        
-        let fullText = "";
-        // Scan first 100 pages (optimization) or full book
-        for (let i = 1; i <= Math.min(pdf.numPages, 100); i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          fullText += textContent.items.map((item: any) => item.str).join(' ') + " ";
-        }
-
-        // DYNAMIC MATCHING: Use the Title from the JSON
-        const targetTitle = data.metadata.analysis_id; // e.g., "Functional Freeze"
-        const chapterIndex = fullText.indexOf(targetTitle);
-        
-        if (chapterIndex === -1) {
-            setScanStatus(`Chapter "${targetTitle}" not found in PDF.`);
-            return;
-        }
-        
-        // Grab context
-        const relevantText = fullText.substring(chapterIndex, chapterIndex + 25000); 
-        setScanStatus("Mining quotes...");
-
-        const updatedThemes = data.themes.map(theme => {
-            const regex = new RegExp(`([^.]*?${theme.name}[^.]*\\.)`, 'i');
-            const match = relevantText.match(regex);
+        setScanStatus("Loading Book PDF...");
+        // 1. Check if PDF exists
+        try {
+            const loadingTask = pdfjsLib.getDocument(BOOK_PDF_PATH);
+            const pdf = await loadingTask.promise;
             
-            return { 
-                ...theme, 
-                book_mapping: match 
-                    ? { quote: match[1].trim(), context: "Direct Match" }
-                    : { quote: `${theme.name} is a key concept in this chapter...`, context: "Inferred" }
-            };
-        });
+            let fullText = "";
+            // Scan first 100 pages (optimization)
+            setScanStatus("Scanning text...");
+            for (let i = 1; i <= Math.min(pdf.numPages, 100); i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                fullText += textContent.items.map((item: any) => item.str).join(' ') + " ";
+            }
 
-        setData(prev => prev ? ({ ...prev, themes: updatedThemes }) : null);
-        setScanStatus("Complete");
+            // DYNAMIC MATCHING
+            const targetTitle = data.metadata.analysis_id; 
+            const chapterIndex = fullText.toLowerCase().indexOf(targetTitle.toLowerCase());
+            
+            if (chapterIndex === -1) {
+                setScanStatus(`Chapter "${targetTitle}" not found in PDF.`);
+                return;
+            }
+            
+            // Grab context
+            const relevantText = fullText.substring(chapterIndex, chapterIndex + 25000); 
+            setScanStatus("Mining quotes...");
+
+            const updatedThemes = data.themes.map(theme => {
+                const regex = new RegExp(`([^.]*?${theme.name}[^.]*\\.)`, 'i');
+                const match = relevantText.match(regex);
+                
+                return { 
+                    ...theme, 
+                    book_mapping: match 
+                        ? { quote: match[1].trim(), context: "Direct Match" }
+                        : undefined // Leave undefined so UI shows "Not found" rather than fake data
+                };
+            });
+
+            setData(prev => prev ? ({ ...prev, themes: updatedThemes }) : null);
+            setScanStatus("Complete");
+
+        } catch (innerErr) {
+            console.error(innerErr);
+            setScanStatus("Error: Book PDF not found in /public/Book/");
+        }
 
       } catch (err) {
         console.error("PDF Read Error:", err);
-        setScanStatus("Book PDF not found in /public/Book/");
+        setScanStatus("PDF Engine Failure");
       }
     };
     minePDF();
-  }, [data?.metadata.analysis_id]); // Rerun if the chapter title changes
+  }, [data?.metadata.analysis_id]); 
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -233,28 +238,21 @@ const App: React.FC = () => {
       reader.onload = (e) => {
         try {
           const json = JSON.parse(e.target?.result as string);
+          // Strict validation
           if (!json.metadata || !json.themes) throw new Error("Invalid Format");
           
-          // Add default fields if missing (to prevent crashes on old JSONs)
-          json.metadata.unique_authors = json.metadata.unique_authors || 0;
-          json.themes = json.themes.map((t: any) => ({
-             ...t,
-             engagement: t.engagement || { comments: 0, avg_upvotes: 0, awards: 0 },
-             temporal_data: t.temporal_data || []
-          }));
-
-          setData(json);
-          setHistory(prev => [json, ...prev.filter(h => h.metadata.analysis_id !== json.metadata.analysis_id)]);
-          setView('dashboard');
+          // Reset data completely to avoid ghost data
+          setData(null);
+          setTimeout(() => {
+              setData(json);
+              setHistory(prev => [json, ...prev.filter(h => h.metadata.analysis_id !== json.metadata.analysis_id)]);
+              setView('dashboard');
+          }, 100);
+          
         } catch (err) { alert('Invalid JSON file.'); }
       };
       reader.readAsText(file);
     }
-  };
-
-  const handleLogin = async () => {
-    await GoogleDriveSync.authenticate();
-    setIsAuthorized(true);
   };
 
   const exportForPublisher = () => {
@@ -287,13 +285,6 @@ const App: React.FC = () => {
                 <span>Upload Analysis JSON</span>
                 <input type="file" className="hidden" accept=".json" onChange={handleFileUpload} />
             </label>
-             <div className="pt-4 border-t border-slate-100 mt-4">
-               {!isAuthorized ? (
-                 <button onClick={handleLogin} className="text-sm text-slate-500 hover:text-indigo-600 font-bold flex items-center justify-center gap-2"><Cloud size={14}/> Sign in with Google</button>
-               ) : (
-                 <span className="text-sm text-green-600 font-bold flex items-center justify-center gap-2"><Cloud size={14}/> Drive Connected</span>
-               )}
-             </div>
           </div>
 
           <div className="grid gap-3 text-left">
@@ -330,7 +321,7 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <div className={`text-xs font-mono px-2 py-1 rounded border ${scanStatus === 'Complete' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                {scanStatus === 'Complete' ? 'Book Synced' : scanStatus}
+                {scanStatus}
             </div>
             <button onClick={exportForPublisher} className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-slate-200">
                 <Download size={16}/> <span className="hidden sm:inline">Export Report</span>
@@ -341,14 +332,13 @@ const App: React.FC = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-10">
         
-        {/* METHODOLOGY SECTION */}
+        {/* DYNAMIC METHODOLOGY SECTION */}
         <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-xl mb-12">
             <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2"><Info size={16}/> Methodology</h3>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-blue-800">
-                <li>• Data collected from {data.metadata.subreddits.length} neurodivergent communities</li>
-                <li>• Time period: {data.metadata.time_filter}</li>
-                <li>• Posts filtered for thematic relevance using keyword analysis</li>
-                <li>• Sentiment classified using community engagement patterns</li>
+            <ul className="grid grid-cols-1 gap-2 text-sm text-blue-800">
+                <li>• <strong>Communities Analyzed:</strong> {data.metadata.subreddits.join(", ")}</li>
+                <li>• <strong>Time Period:</strong> {data.metadata.time_filter}</li>
+                <li>• <strong>Validation Volume:</strong> {data.themes.reduce((a, t) => a + t.total_posts, 0)} total mentions across {data.themes.length} identified themes.</li>
             </ul>
         </div>
 
@@ -367,7 +357,7 @@ const App: React.FC = () => {
                  <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                     <p className="text-xs font-bold text-slate-400 uppercase">Book Status</p>
                     <p className={`text-xl font-bold ${scanStatus === 'Complete' ? 'text-green-600' : 'text-amber-500'}`}>
-                        {scanStatus === 'Complete' ? 'Quotes Extracted' : 'Scanning PDF...'}
+                        {scanStatus}
                     </p>
                 </div>
             </div>
