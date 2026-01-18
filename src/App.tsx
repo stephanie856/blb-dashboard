@@ -29,7 +29,7 @@ interface Theme {
   wordcloud_path?: string;
   // ADD THIS LINE BELOW:
   related_chapters?: Array<{ chapter_name: string; chapter_quote: string; }>; 
-  book_mappings?: Array<{
+  book_quotes?: Array<{
     context?: string;
     chapter_name?: string;
     quote?: string;
@@ -716,16 +716,16 @@ const ThemeCard: React.FC<{ theme: Theme; totalPosts: number }> = ({ theme, tota
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
               <BookOpen size={14}/> Book Validation
             </h4>
-            {theme.book_mappings && theme.book_mappings.length > 0 ? (
+            {theme.book_quotes && theme.book_quotes.length > 0 ? (
               <div className="space-y-4">
-                {theme.book_mappings.map((mapping, idx) => (
+                {theme.book_quotes.map((quoteObj, idx) => (
                   <div key={idx} className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 h-full bg-indigo-400"></div>
                     <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase">
-                      {mapping.context || mapping.chapter_name || 'From Your Book'}
+                      {quoteObj.context || quoteObj.chapter_name || 'From Your Book'}
                     </p>
                     <p className="italic text-slate-700 text-sm font-medium leading-relaxed">
-                      "{mapping.quote || mapping.chapter_quote}"
+                      "{quoteObj.quote || quoteObj.chapter_quote}"
                     </p>
                   </div>
                 ))}
