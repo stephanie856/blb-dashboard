@@ -30,7 +30,6 @@ interface Theme {
   // ADD THIS LINE BELOW:
   related_chapters?: Array<{ chapter_name: string; chapter_quote: string; }>;
 }
-}
 
 interface AnalysisData {
   metadata: {
